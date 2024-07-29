@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/addons/p5.sound.js"></script>
+</head>
+<body>
+  <script>
+    let   
+	lights = [];
+    let mic;
+    let fft;
+    let audio;
+
+    function preload() {
+      audio = loadSound('https://github.com/nstreamAI/DiscoTest/blob/892ae92c91e44d7fef011e2e9373192ceb1ea205/groove.mp3?raw=true'); // Replace 'mymusic.mp3' with your file path
+	  audio.on('loaded', () => {
+      console.log('Audio loaded successfully');
+  });
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      colorMode(HSB);
+
+      for (let i = 0; i < 100; i++) {
+        createLight();
+      }
+
+      audio.play();
+      fft = new p5.FFT();
+      fft.setInput(audio);
+    }
+
+function draw() {
+      let spectrum = fft.analyze();
+
+      for (let i = 0; i < leds.length; i++) {
+        let index = floor(map(i, 0, leds.length, 0, spectrum.length));
+        let hue = map(spectrum[index], 0, 255, 0, 360);
+        let saturation = map(spectrum[index + 1], 0, 255, 50, 100);
+        let brightness = map(spectrum[index + 2], 0, 255, 50, 100);
+        leds[i].style.backgroundColor = `hsl(${hue}, ${saturation}%, ${brightness}%)`;
+
+        let amplitude = mic.getLevel();
+        leds[i].style.opacity = map(amplitude, 0, 1, 0.2, 1);
+      }
+    }
+
+    function createLED() {
+      let led = createDiv('');
+      led.style.position = 'absolute';
+      led.style.width = '20px';
+      led.style.height = '20px';
+      led.style.borderRadius = '50%';
+      led.style.left = random(width) + 'px';
+      led.style.top = random(height) + 'px';
+      leds.push(led);
+    }
+    // Rest of your code...
+  </script>
+</body>
+</html>
